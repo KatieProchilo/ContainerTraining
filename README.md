@@ -4,11 +4,11 @@ This is a quick guide to walk you through getting up to speed using containers.
 
 In this guide we will walk you through the following
 
-- Building an asp.net Core WebAPI
-- Putting your WebAPI in a Docker Container
+- Building an ASP.NET Core Web API
+- Putting your Web API in a Docker Container
 - Running the container locally
-- publishing the container to Docker Hub
-- publishing the container to ACR (Azure Container Registry)
+- Publishing the container to Docker Hub
+- Publishing the container to ACR (Azure Container Registry)
 - Deploy the container using a web app in azure
 - Setting up Continuous Deployment for your container in a Web App
 - Running the container in Azure using ACI (Azure Container Service)
@@ -38,34 +38,34 @@ Kubectl [Full Directions](https://kubernetes.io/docs/tasks/tools/install-kubectl
 
 C# for Visual Studio Code [https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp]
 
-[.Net Core 2.1 SDK](https://www.microsoft.com/net/download/all) for running our asp.net core projects
+[.NET Core 2.1 SDK](https://www.microsoft.com/net/download/all) for running our ASP.NET Core projects
 
-## Creating an asp.net core WebAPI
+## Creating an ASP.NET Core Web API
 
-The first thing we need to to set up an asp.net core WebAPI to have something to call when we testing out containers. For our purposes, this needs to be asp.net core since we will be using kubernetes and running linux containers. If you need to run windows containers and classic ASP.net then you could use Azure Service Fabric (not covered in this training) [Service Fabric Quick Start](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-quickstart-containers)
+The first thing we need to to set up an ASP.NET Core Web API to have something to call when we testing out containers. For our purposes, this needs to be ASP.NET Core since we will be using kubernetes and running Linux containers. If you need to run windows containers and classic ASP.NET then you could use Azure Service Fabric (not covered in this training) [Service Fabric Quick Start](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-quickstart-containers)
 
-##### Using the following tutorial to create a simple todo WebAPI app using VS Code (or just use the one in the repository ToDoV1)
+##### Using the following tutorial to create a simple todo Web API app using VS Code (or just use the one in the repository ToDoV1)
 
 [Create a Web API with ASP.NET Core and Visual Studio Code](https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-vsc?view=aspnetcore-2) <span style="color:red"> SKIP THE CALLING FROM JQUERY SECTION</span>
 
-Now that we have created an asp.net core WebApi we want to prepare it for docker.
+Now that we have created an ASP.NET Core WebApi we want to prepare it for docker.
 
-## Running your asp.net core WebAPI in Docker
+## Running your ASP.NET Core Web API in Docker
 
 The first thing we want to do is to make some modifications to our project to prepare it for containerization. In our **_program.cs_** file, we need to add the **_.UserUrls()_** to our **_CreateWebHostBuilder_** method. By default, the app will listen to the localhost, ignoring any incoming requests from outside the container. By adding "http://0.0.0.0:5000" or "http://*:5000" it will allow it to listen outside the container. There are many ways you can do this. This by far is the easiest. (We will also *EXPOSE\* it in the Dockerfile too to allow it to be accessed in the cloud)
 
-<pre><code>
+```c#
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                <b>.UseUrls("http://0.0.0.0:5000")</b>
+                .UseUrls("http://0.0.0.0:5000")
                 .UseStartup<Startup>();
-</code></pre>
+```
 
 --
 
 Next, we want to to create a file called **Dockerfile** (no extension) and place it in the root of your project. [Dockerfile best practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
 
-There are many images to use as a base images for docker when using ASP.net Core. We are going to be using two of them. Docker 17.05 and higher allows multi-stage builds.
+There are many images to use as a base images for docker when using ASP.NET Core. We are going to be using two of them. Docker 17.05 and higher allows multi-stage builds.
 
 One for building - **microsoft/dotnet:2.1.300-sdk**  
 And one for deployment **microsoft/dotnet:2.1.0-aspnetcore-runtime**
@@ -151,9 +151,9 @@ ENTRYPOINT ["dotnet", "TodoApi.dll"]
 </b>
 </code></pre>
 
-> **IMPORTANT** You want to make sure that the dll referenced in the last line of your dockerfile (TodoApi.dll in this case) matches what will be produced by your application. Meaning if you named your application something other than TodoApi then you will need to change this line. If you don't, you will get a strange error like the following <b>Did you mean to run dotnet SDK commands? Please install dotnet SDK from</b> and you wont know what is causing it.
+> **IMPORTANT** You want to make sure that the dll referenced in the last line of your dockerfile (TodoApi.dll in this case) matches what will be produced by your application. Meaning if you named your application something other than TodoApi then you will need to change this line. If you don't, you will get a strange error like the following **Did you mean to run dotnet SDK commands? Please install dotnet SDK from** and you wont know what is causing it.
 
-We also want to create a <b>.dockerignore</b> (don't forget the '.' in front of the name) this will make sure we keep the image as fast and as small as possible by ignoring files we don't care about. Place it in the root of your project directory (same as Dockerfile). We are excluding the bin and obj folders, as well as stuff associated with VSCode and git, but you can add anything you don't need packaged in the container.
+We also want to create a **.dockerignore** (don't forget the '.' in front of the name) this will make sure we keep the image as fast and as small as possible by ignoring files we don't care about. Place it in the root of your project directory (same as Dockerfile). We are excluding the bin and obj folders, as well as stuff associated with VSCode and git, but you can add anything you don't need packaged in the container.
 
 <pre><code><b>.dockerignore
 .env
@@ -249,7 +249,7 @@ If you want to look around the container you can have it give you a bash prompt 
 
 That will give you a bash prompt right where your files are in the container. The working directory we defined, the "app" folder.
 
-To exit, you will need to type <b>exit</b> at the bash prompt (as opposed to Ctrl + C)
+To exit, you will need to type **exit** at the bash prompt (as opposed to Ctrl + C)
 
 ## Uploading to Docker Hub
 

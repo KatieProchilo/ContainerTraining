@@ -5,8 +5,6 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
   EnvironmentName = Environments.Development, // "ASPNETCORE_ENVIRONMENT": "Development",
 });
 
-Console.WriteLine($"Environment Name: {builder.Environment.EnvironmentName}");
-
 builder.WebHost.UseKestrel(serverOptions =>
 {
   serverOptions.ListenAnyIP(5000); // Listen for incoming HTTP connection on port 5001.
@@ -34,15 +32,6 @@ app.MapFallback(() => Results.Redirect("/swagger"));
 app.MapGet("/todos", async (TodoDbContext db) =>
     await db.Todos.Select(x => new TodoItemDTO(x)).ToListAsync());
 
-app.MapGet("/todos/complete", async (TodoDbContext db) =>
-    await db.Todos.Where(t => t.IsComplete).ToListAsync());
-
-app.MapGet("/todos/{id}", async (int id, TodoDbContext db) =>
-    await db.Todos.FindAsync(id)
-        is Todo todo
-            ? Results.Ok(new TodoItemDTO(todo))
-            : Results.NotFound());
-
 app.MapPost("/todos", async (TodoItemDTO todoItemDto, TodoDbContext db) =>
 {
   var todoItem = new Todo
@@ -55,20 +44,6 @@ app.MapPost("/todos", async (TodoItemDTO todoItemDto, TodoDbContext db) =>
   await db.SaveChangesAsync();
 
   return Results.Created($"/todos/{todoItem.Id}", new TodoItemDTO(todoItem));
-});
-
-app.MapPut("/todos/{id}", async (int id, TodoItemDTO inputTodoItemDTO, TodoDbContext db) =>
-{
-  var todo = await db.Todos.FindAsync(id);
-
-  if (todo is null) return Results.NotFound();
-
-  todo.Name = inputTodoItemDTO.Name;
-  todo.IsComplete = inputTodoItemDTO.IsComplete;
-
-  await db.SaveChangesAsync();
-
-  return Results.NoContent();
 });
 
 app.MapDelete("/todos/{id}", async (int id, TodoDbContext db) =>
@@ -84,14 +59,3 @@ app.MapDelete("/todos/{id}", async (int id, TodoDbContext db) =>
 });
 
 app.Run();
-
-public class TodoItemDTO
-{
-  public int Id { get; set; }
-  public string? Name { get; set; }
-  public bool IsComplete { get; set; }
-
-  public TodoItemDTO() { }
-  public TodoItemDTO(Todo todoItem) =>
-    (Id, Name, IsComplete) = (todoItem.Id, todoItem.Name, todoItem.IsComplete);
-}

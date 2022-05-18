@@ -162,8 +162,8 @@ ENTRYPOINT ["dotnet", "TodoApi.dll"]
 
 > **IMPORTANT** You want to make sure that the dll referenced in the last line of your Dockerfile (TodoApi.dll in this
 > case) matches what will be produced by your application. Meaning if you named your application something other than
-> TodoApi then you will need to change this line. If you don't, you will get a strange error like the following **Did
-> you mean to run dotnet SDK commands? Please install dotnet SDK from** and you won't know what is causing it.
+> TodoApi then you will need to change this line. If you don't, you will get a strange error like, "Did
+> you mean to run dotnet SDK commands? Please install dotnet SDK," and you won't know what is causing it.
 
 We also want to create a **.dockerignore** (don't forget the '.' in front of the name) this will make sure we keep the
 image as fast and as small as possible by ignoring files we don't care about. Place it in the root of your project
@@ -305,28 +305,46 @@ Next we can run the container:
 docker run -it --rm -p 5000:5000 -e "ASPNETCORE_URLS=http://+:5000" --name To_Do_App todov1
 ```
 
-- -it is running it interactively at the command prompt (as opposed to detached)(i interactive t terminal)
-- --rm automatically removes the container at exit (to clean up your local environment)
-- -p is setting up the port to connect your local port of 5000 to the port 5000 on the container
-- -e is setting an environment variable (we don't really need this since we set it in the program.cs file
-- --name is of the container
+> **_NOTE:_** Bash users might get an error like "the input device is not a TTY. If you are using mintty, try prefixing the
+> command with 'winpty'." If this is the case, use a different terminal like PowerShell or use winpty to run the command:
+>
+> ```bash
+> winpty docker run -it --rm -p 5000:5000 -e "ASPNETCORE_URLS=http://+:5000" --name To_Do_App todov1
+> ```
+>
+> If the above command fixes the error, you might want to create a Bash alias to handle this in the future without
+> typing 'winpty':
+>
+> ```bash
+> echo "alias docker='winpty docker'" >> ~/.bashrc
+> ```
+>
+> Now you should be able to run the original Docker command without any issues.
+
+Let's take a closer look at the arguments in the above command:
+
+- **-it** runs it interactively at the command prompt, as opposed to detached (i interactive t terminal)
+- **--rm** automatically removes the container at exit (to clean up your local environment)
+- **-p** sets up the port to connect your local port of 5000 to the port 5000 on the **container**
+- **-e** sets an environment variable (We don't really need this since we set it in **Program.cs**)
+- **--name** is the name of the container
 - and lastly, the name you gave it in the previous step.
 
 To prove to yourself that the container is running the app on your machine, open a browser and navigate to
-<http://localhost:5000/api/todo>.
+<http://localhost:5000/api/todos>.
 
-If you want to look around the container you can have it give you a bash prompt when you run it. Normally you can just
+If you want to look around the container you can have it give you a Bash prompt when you run it. Normally you can just
 add /bin/bash to the end of the command but if you have an entrypoint defined (we do) you have to run the command like
 this.
 
 ```bash
-docker run -it --rm -p 5000:5000  --name ToDo_App --entrypoint /bin/bash todov1
+docker run -it --rm -p 5000:5000 --name To_Do_App --entrypoint /bin/bash todov1
 ```
 
-That will give you a bash prompt right where your files are in the container. The working directory we defined, the
+That will give you a Bash prompt right where your files are in the container. The working directory we defined, the
 "app" folder.
 
-To exit, you will need to type **exit** at the bash prompt (as opposed to Ctrl + C)
+To exit, you will need to type **exit** at the Bash prompt (as opposed to Ctrl + C)
 
 ## Uploading to Docker Hub
 
@@ -411,7 +429,7 @@ ClI installed. In addition to this, we need to also make sure that the version o
 az --version
 ```
 
-This will give you not only the version of the az cli but also all the command line interfaces that the az cli utilizes.
+This will give you not only the version of the az CLI but also all the command line interfaces that the az CLI utilizes.
 
 ![](https://raw.githubusercontent.com/DanielEgan/ContainerTraining/master/images/azversion.png)
 
@@ -425,7 +443,7 @@ If you have not used the Azure CLI before you will need to log in using the comm
 az login
 ```
 
-This will print out the following line with a code to authenticate the azure cli with your Azure subscription. If you
+This will print out the following line with a code to authenticate the Azure CLI with your Azure subscription. If you
 have already done this, you can skip this step.
 
 **_To sign in, use a web browser to open the page <https://microsoft.com/devicelogin> and enter the code SOMECODEHERE to
@@ -778,7 +796,7 @@ Next, we will deploy our container in a Kubernetes Cluster.
 ### Setting up the cluster
 
 Now we will deploy our container to the fourth of our options, a Kubernetes cluster. To do this we will be using AKS,
-the Microsoft Managed Kubernetes service. We will use a combination of the azure-cli and the portal to complete our
+the Microsoft Managed Kubernetes service. We will use a combination of the Azure CLI and the portal to complete our
 tasks.
 
 To begin, we first need to make sure that AKS is associated with your Azure subscription. To do that, run the following

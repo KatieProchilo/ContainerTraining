@@ -7,6 +7,11 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 Console.WriteLine($"Environment Name: {builder.Environment.EnvironmentName}");
 
+builder.WebHost.UseKestrel(serverOptions =>
+{
+  serverOptions.ListenAnyIP(5000); // Listen for incoming HTTP connection on port 5001.
+});
+
 // Add services to the container. Learn more about configuring Swagger/OpenAPI
 // at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

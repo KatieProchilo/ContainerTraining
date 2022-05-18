@@ -1,6 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+  EnvironmentName = Environments.Development, // "ASPNETCORE_ENVIRONMENT": "Development",
+});
+
+Console.WriteLine($"Environment Name: {builder.Environment.EnvironmentName}");
 
 // Add services to the container. Learn more about configuring Swagger/OpenAPI
 // at https://aka.ms/aspnetcore/swashbuckle
